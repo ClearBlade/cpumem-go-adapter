@@ -53,7 +53,8 @@ builds:
     # For more info refer to: https://golang.org/doc/install/source#environment
     # Defaults are darwin and linux.
     goos:
-      - freebsd
+      - linux
+      - darwin
     
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -73,15 +74,19 @@ builds:
     # GOMIPS and GOMIPS64 to build when GOARCH is mips, mips64, mipsle or mips64le.
     # For more info refer to: https://golang.org/doc/install/source#environment
     # Default is empty.
-    gomips:
-      - hardfloat
-      - softfloat
+    # gomips:
+    #   - hardfloat
+    #   - softfloat
 
     # List of combinations of GOOS + GOARCH + GOARM to ignore.
     # Default is empty.
     ignore:
       - goos: darwin
         goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: darwin
+        goarch: arm64  
       - goarm: mips64
         gomips: hardfloat
 
