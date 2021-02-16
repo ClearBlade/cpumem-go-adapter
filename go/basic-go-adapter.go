@@ -83,5 +83,5 @@ func sendSystemStats() {
 
 func cbMessageHandler(message *mqttTypes.Publish) {
 	// process incoming MQTT messages as needed here
-	fmt.Println("Incoming Message from ClearBlade: ", message)
+	fmt.Println("Incoming Message from ClearBlade:- ", message)
 }
