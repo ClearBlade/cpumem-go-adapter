@@ -41,7 +41,7 @@ builds:
     # Custom ldflags templates.
     # Default is `-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser`.
     ldflags:
-     - -s -w -X main.build={{.Version}}
+       - -X main.build={{.Version}}
     #  - ./usemsan=-msan
 
     # Custom environment variables to be set during the builds.

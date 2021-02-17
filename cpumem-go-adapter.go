@@ -54,6 +54,7 @@ func main() {
 
 func sendSystemStats() {
 	for {
+		time.Sleep(10 * time.Second)
 		v, _ := mem.VirtualMemory()
 		c, _ := cpu.Percent(10 * time.Second, false)
 		
@@ -80,7 +81,6 @@ func sendSystemStats() {
 		fmt.Println(string(mCM))
 		//fmt.Println("Topic Root: ", adapterConfig.TopicRoot)
 		adapter_library.Publish(topicRoot, mCM)
-		time.Sleep(10 * time.Second)
 	}
 }
 
