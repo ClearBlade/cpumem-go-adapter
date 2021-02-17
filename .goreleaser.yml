@@ -41,14 +41,14 @@ builds:
     # Custom ldflags templates.
     # Default is `-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser`.
     ldflags:
-       - -X main.build={{.Version}}
+       - -s -w -X main.build={{.Version}}
     #  - ./usemsan=-msan
 
     # Custom environment variables to be set during the builds.
     # Default is empty.
     env:
-      - CGO_ENABLED=1
-      - CC=gcc
+      - CGO_ENABLED=0
+      # - CC=gcc
       # - CXX=arm-linux-gnueabihf-g++
 
     # GOOS list to build for.
@@ -56,7 +56,7 @@ builds:
     # Defaults are darwin and linux.
     goos:
       - linux
-      - darwin
+      # - darwin
     
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
