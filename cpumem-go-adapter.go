@@ -63,7 +63,7 @@ func sendSystemStats() {
 		// 	fmt.Println(err)
 		// 	return
 		// }
-		
+		fmt.Println("Print cpu percent: ", c)
 		cpuMem := map[string]interface{}{
 			"mem": v,
 			"cpu":c[0],
