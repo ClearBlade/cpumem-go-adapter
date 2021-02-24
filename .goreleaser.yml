@@ -70,6 +70,7 @@ builds:
     # For more info refer to: https://golang.org/doc/install/source#environment
     # Default is only 6.
     goarm:
+      - 5
       - 6
       - 7
 
