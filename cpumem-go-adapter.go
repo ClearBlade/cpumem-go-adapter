@@ -9,12 +9,17 @@ import (
 	mqttTypes "github.com/clearblade/mqtt_parsing"
 	mem "github.com/shirou/gopsutil/v3/mem"
 	cpu "github.com/shirou/gopsutil/v3/cpu"
+	disk "github.com/shirou/gopsutil/v3/disk"
+	host "github.com/shirou/gopsutil/v3/host"
 
 )
 
 const (
 	adapterName = "cpumem-go-adapter"
-	topicRoot = "_monitor/asset/gateway-validation/data"
+	topicRoot = "normalizer-generic/data"
+	infoTopic = "normalizer-generic/data"
+	assetType = "edge"
+	groupID = "default"
 )
 
 var (
@@ -45,35 +50,79 @@ func main() {
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to Connect MQTT: %s\n", err.Error())
 	}
-	
+	sendGatewayInfo()
 	// kick off adapter specific things here
 	go sendSystemStats()
 	// keep adapter executing indefinitely 
 	select {}
 }
 
+func sendGatewayInfo() {
+	h, _ := host.Info()
+	d, _ := disk.Usage("/")
+	c, _ := cpu.Info()
+
+	var gatewayInfoMarshalled []byte
+	var err error
+	gatewayInfo := map[string]interface{}{
+			"os":h.OS,
+			"os_platform":h.Platform,
+			"os_platform_family":h.PlatformFamily,
+			"kernel_arch":h.KernelArch,
+			"os_platform_version":h.PlatformVersion,
+			"model_name":c[0].ModelName,
+			"cache_size":c[0].CacheSize,
+			"total_disk_space":d.Total,
+			"used_disk_space_percent":d.UsedPercent,
+			"is_validated":true,
+		}
+
+	asset := map[string]interface{}{
+		"type":assetType,
+		"custom_data":gatewayInfo,
+		"group_id":groupID,
+	}
+
+	if gatewayInfoMarshalled, err = json.Marshal(asset); err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	fmt.Println(string(gatewayInfoMarshalled))
+	adapter_library.Publish(infoTopic, gatewayInfoMarshalled)
+}
+
 func sendSystemStats() {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(20 * time.Second)
 		v, _ := mem.VirtualMemory()
 		c, _ := cpu.Percent(10 * time.Second, false)
-		
+		d, _ := disk.Usage("/")
+	
 		var mCM []byte
 		var err error
-		// if mV, err = json.Marshal(v); err != nil {
-		// 	fmt.Println(err)
-		// 	return
-		// }
-		fmt.Println("Print cpu percent: ", c)
-		if len(c) == 0 {
-			continue
+		var virtualMemory map[string]interface{}
+
+		customData := make(map[string]interface{})
+		if len(c) != 0 {
+			customData["cpu_used_percent"]=c[0]
 		}
-		cpuMem := map[string]interface{}{
-			"mem": v,
-			"cpu":c[0],
+
+		mV, _ := json.Marshal(v)
+		json.Unmarshal(mV, &virtualMemory)
+
+		for key, value := range virtualMemory { 
+			customData[key] = value
 		}
+
+		customData["used_disk_space_percent"]=d.UsedPercent
 		
-		if mCM, err = json.Marshal(cpuMem); err != nil {
+		asset := make(map[string]interface{})
+		asset["custom_data"]=customData
+		asset["type"]=assetType
+		asset["group_id"]=groupID
+		
+		if mCM, err = json.Marshal(asset); err != nil {
 			fmt.Println(err)
 			return
 		}
